@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { Client, IntentsBitField} = require('discord.js');
 
 //Intents are a set of permissions that your bot can use to get access to a set of events
@@ -24,4 +25,4 @@ client.on('messageCreate', (message) => {
     }
 });
 
-client.login('MTE2MjU2NTUxODQ5NTA1NjAxMg.Gq58en.ZbD35BCB12sRBi5adsu-SLvbZFZs75j4o2fVks');
+client.login(process.env.TOKEN);
