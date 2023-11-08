@@ -1,11 +1,14 @@
-const Sequelize = require('sequelize');
+const { database } = require("pg/lib/defaults");
 
-const sequelize = new Sequelize('database', 'user', 'password', {
-    dialect: 'sqlite',
-    host: 'localhost',
+const {Client} = require(pg);
 
-    storage: 'database.sqlite',
-    logging: false,
+const client = new Client({
+    host: "localhost",
+    user: "postgres",
+    port: 5432,
+    password: "AppaMomo2025",
+    database: "Cat_Images_DB"
 });
 
-module.eports = sequelize;
+client.connect();
+
