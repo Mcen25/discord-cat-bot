@@ -2,7 +2,7 @@ require('dotenv').config();
 const { Client, IntentsBitField} = require('discord.js');
 const cron = require('node-cron');
 
-const channelId = '876661251843952682';
+const channelId = '1068546842247303191';
 
 //Intents are a set of permissions that your bot can use to get access to a set of events
 const client = new Client({
@@ -27,15 +27,27 @@ client.on('messageCreate', (message) => {
         message.reply('Hey! 🐈');
     }
 
+    if (message.content === '!cat') {
+        const channel = client.channels.cache.get(channelId);
+        if (channel) {
+        channel.send({
+            files: [{
+            attachment: '/Users/matthewen/Documents/IMG_0094.PNG',
+            name: 'IMG_0094.PNG',
+            description: 'Shiro sitting on a chair'
+            }]
+        }).then(console.log).catch(console.error);
+        }
+    }
+
 });
 
 cron.schedule('54 21 * * *', () => {
     const channel = client.channels.cache.get(channelId);
     if (channel) {
-      // Send a local file
       channel.send({
         files: [{
-        attachment: '/Users/matthewen/Downloads/IMG_0094.PNG',
+        attachment: '/Users/matthewen/Documents/IMG_0094.PNG',
         name: 'IMG_0094.PNG',
         description: 'Shiro sitting on a chair'
         }]
