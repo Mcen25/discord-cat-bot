@@ -1,18 +1,49 @@
 require('dotenv').config();
-const { Client, IntentsBitField} = require('discord.js');
+const { Client, Events, GatewayIntentBits} = require('discord.js');
 const cron = require('node-cron');
+const { Sequelize } = require('sequelize');
 
 const channelId = '1068546842247303191';
 
 //Intents are a set of permissions that your bot can use to get access to a set of events
 const client = new Client({
     intents: [
-        IntentsBitField.Flags.Guilds,
-        IntentsBitField.Flags.GuildMembers,
-        IntentsBitField.Flags.GuildMessages,
-        IntentsBitField.Flags.MessageContent,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
     ]
 })
+
+const sequelize = new Sequelize(process.env.POSTGRES_DB, process.env.POSTGRES_USER, process.env.POSTGRES_PASSWORD, {
+    host: process.env.DB_HOST,
+    dialect: 'postgres'
+});
+
+// const Tags = sequelize.define('tags', {
+// 	name: {
+// 		type: Sequelize.STRING,
+// 		unique: true,
+// 	},
+// 	description: Sequelize.TEXT,
+// 	username: Sequelize.STRING,
+// 	usage_count: {
+// 		type: Sequelize.INTEGER,
+// 		defaultValue: 0,
+// 		allowNull: false,
+// 	},
+// });
+
+const Images = sequelize.define('images', {
+    imgname: Sequelize.TEXT,
+    img: Sequelize.BLOB('long'),
+});
+
+client.once(Events.ClientReady, () => {
+	//Tags.sync();
+    Images.sync();
+	console.log(`Logged in as ${client.user.tag}!`);
+});
 
 //c is for client
 client.on('ready', (c) => {
