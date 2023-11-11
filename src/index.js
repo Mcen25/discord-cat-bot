@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { Client, Events, GatewayIntentBits} = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits} = require('discord.js');
 const cron = require('node-cron');
 const { Sequelize } = require('sequelize');
 
@@ -15,28 +15,16 @@ const client = new Client({
     ]
 })
 
+client.commands = new Collection();
+
 const sequelize = new Sequelize(process.env.POSTGRES_DB, process.env.POSTGRES_USER, process.env.POSTGRES_PASSWORD, {
     host: process.env.DB_HOST,
     dialect: 'postgres'
 });
 
-// const Tags = sequelize.define('tags', {
-// 	name: {
-// 		type: Sequelize.STRING,
-// 		unique: true,
-// 	},
-// 	description: Sequelize.TEXT,
-// 	username: Sequelize.STRING,
-// 	usage_count: {
-// 		type: Sequelize.INTEGER,
-// 		defaultValue: 0,
-// 		allowNull: false,
-// 	},
-// });
-
 const Images = sequelize.define('images', {
-    imgname: Sequelize.TEXT,
-    img: Sequelize.BLOB('long'),
+    imgname: Sequelize.STRING,
+    img: Sequelize.STRING,
 });
 
 client.once(Events.ClientReady, () => {
@@ -63,7 +51,7 @@ client.on('messageCreate', (message) => {
         if (channel) {
         channel.send({
             files: [{
-            attachment: '/Users/matthewen/Documents/IMG_0094.PNG',
+            attachment: '/Users/matthewen/Documents/Cat Pics/IMG_0094.PNG',
             name: 'IMG_0094.PNG',
             description: 'Shiro sitting on a chair'
             }]
@@ -73,12 +61,18 @@ client.on('messageCreate', (message) => {
 
 });
 
+client.on(Events.InteractionCreate, async interaction => {
+    if (!interaction.isChatInputCommand()) return;
+
+	const { commandName } = interaction;
+});
+
 cron.schedule('54 21 * * *', () => {
     const channel = client.channels.cache.get(channelId);
     if (channel) {
       channel.send({
         files: [{
-        attachment: '/Users/matthewen/Documents/IMG_0094.PNG',
+        attachment: '/Users/matthewen/Documents/Cat Pics/IMG_0094.PNG',
         name: 'IMG_0094.PNG',
         description: 'Shiro sitting on a chair'
         }]
