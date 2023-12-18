@@ -68,13 +68,29 @@ client.on('messageCreate', async (message) => {
     }
 
     if (message.content === '!cat2') {
-        // const file = new AttachmentBuilder('/Users/matthewen/Documents/Cat Pics/ShiroChair.png');
+        image(message, 293, 633, '/Users/matthewen/Documents/Cat Pics/ShiroChair.png')
+    }
 
-        const canvas = Canvas.createCanvas(1170, 2532);
+    if (message.content === '!cat3') {
+        image(message, 750, 866, '/Users/matthewen/Documents/Cat Pics/IMG_2175.png');
+    }
+
+    if (message.content === 'thicc') {
+        image(message, 378, 375, '/Users/matthewen/Documents/Cat Pics/IMG_0723.jpg');
+    }
+
+    if (message.content === 'loaf') {
+        image(message, 216, 288, '/Users/matthewen/Documents/Cat Pics/IMG_3627.jpg');
+    }
+
+});
+
+async function image(message, widthInput, heightInput, url) {
+    const canvas = Canvas.createCanvas(widthInput, heightInput);
 
         const context = canvas.getContext('2d');
 
-        const background = await Canvas.loadImage('/Users/matthewen/Documents/Cat Pics/ShiroChair.png');
+        const background = await Canvas.loadImage(url);
     
         // This uses the canvas dimensions to stretch the image onto the entire canvas
         context.drawImage(background, 0, 0, canvas.width, canvas.height);
@@ -83,9 +99,7 @@ client.on('messageCreate', async (message) => {
         const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'profile-image.png' });
     
         message.channel.send({ files: [attachment] });
-    }
-
-});
+}
 
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
