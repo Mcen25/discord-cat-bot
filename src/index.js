@@ -1,7 +1,7 @@
 require('dotenv').config();
-const { Client, Collection, Events, GatewayIntentBits} = require('discord.js');
-const cron = require('node-cron');
+const { Client, Collection, Events, GatewayIntentBits, AttachmentBuilder, EmbedBuilder} = require('discord.js');
 const { Sequelize } = require('sequelize');
+const Canvas = require('@napi-rs/canvas');
 
 const channelId = '1068546842247303191';
 
@@ -19,7 +19,8 @@ client.commands = new Collection();
 
 const sequelize = new Sequelize(process.env.POSTGRES_DB, process.env.POSTGRES_USER, process.env.POSTGRES_PASSWORD, {
     host: process.env.DB_HOST,
-    dialect: 'postgres'
+    dialect: 'postgres',
+    logging: false
 });
 
 const Images = sequelize.define('images', {
@@ -38,25 +39,50 @@ client.on('ready', (c) => {
     console.log(`🐈 ${c.user.tag} is online.`);
 });
 
-client.on('messageCreate', (message) => {
+client.on('messageCreate', async (message) => {
     if (message.author.bot) {
         return;
     }
+
     if (message.content === 'hello') {
         message.reply('Hey! 🐈');
     }
 
+    if (message.content === 'Matt') {
+        message.reply('Matt is cool! 🐈');
+    }
+
     if (message.content === '!cat') {
-        const channel = client.channels.cache.get(channelId);
-        if (channel) {
-        channel.send({
-            files: [{
-            attachment: '/Users/matthewen/Documents/Cat Pics/IMG_0094.PNG',
-            name: 'IMG_0094.PNG',
-            description: 'Shiro sitting on a chair'
-            }]
-        }).then(console.log).catch(console.error);
-        }
+        const file = new AttachmentBuilder('https://upload.wikimedia.org/wikipedia/commons/e/e0/Cat_demonstrating_static_cling_with_styrofoam_peanuts.jpg');
+
+        const electroStatics = {
+            title: 'Kitty with styrofoam peanuts',
+            image: {
+                url: 'attachment://Cat_demonstrating_static_cling_with_styrofoam_peanuts.jpg',
+            },
+        };
+        
+        message.channel.send({embeds: [electroStatics], files: [file] });
+        console.log(message.channel.id);
+        console.log('Sent a cat pic!');
+    }
+
+    if (message.content === '!cat2') {
+        // const file = new AttachmentBuilder('/Users/matthewen/Documents/Cat Pics/ShiroChair.png');
+
+        const canvas = Canvas.createCanvas(1170, 2532);
+
+        const context = canvas.getContext('2d');
+
+        const background = await Canvas.loadImage('/Users/matthewen/Documents/Cat Pics/ShiroChair.png');
+    
+        // This uses the canvas dimensions to stretch the image onto the entire canvas
+        context.drawImage(background, 0, 0, canvas.width, canvas.height);
+    
+        // Use the helpful Attachment class structure to process the file for you
+        const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'profile-image.png' });
+    
+        message.channel.send({ files: [attachment] });
     }
 
 });
@@ -66,19 +92,5 @@ client.on(Events.InteractionCreate, async interaction => {
 
 	const { commandName } = interaction;
 });
-
-cron.schedule('54 21 * * *', () => {
-    const channel = client.channels.cache.get(channelId);
-    if (channel) {
-      channel.send({
-        files: [{
-        attachment: '/Users/matthewen/Documents/Cat Pics/IMG_0094.PNG',
-        name: 'IMG_0094.PNG',
-        description: 'Shiro sitting on a chair'
-        }]
-      }).then(console.log).catch(console.error);
-    }
-  });
-
 
 client.login(process.env.TOKEN);
