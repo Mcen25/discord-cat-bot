@@ -58,12 +58,20 @@ client.on('messageCreate', async (message) => {
             }})
     }
 
-    if (message.content === 'hello') {
-        message.reply('Hey! 🐈');
+    if (message.content === 'catdb') {
+        pgClient.query("SELECT imgurl FROM images WHERE imgname = 'test2'", (err, res) => {
+            if (err) {
+                console.error('Error executing query', err.stack);
+            } else {
+
+                const imgURL = res.rows[0].imgurl;
+                // message.reply(imgURL);
+                image(message, 293, 633, imgURL);
+            }});
     }
 
-    if (message.content === 'Matt') {
-        message.reply('Matt is cool! 🐈');
+    if (message.content === 'hello') {
+        message.reply('Hey! 🐈');
     }
 
     if (message.content === '!cat') {
