@@ -1,8 +1,7 @@
 require('dotenv').config();
 const { Client, Collection, Events, GatewayIntentBits, AttachmentBuilder, EmbedBuilder} = require('discord.js');
-const { Sequelize } = require('sequelize');
 const Canvas = require('@napi-rs/canvas');
-
+const { Client: PGClient} = require('pg');
 const channelId = '1068546842247303191';
 
 //Intents are a set of permissions that your bot can use to get access to a set of events
@@ -15,22 +14,21 @@ const client = new Client({
     ]
 })
 
+const pgClient = new PGClient({
+    host: process.env.DB_HOST,
+    port: 5432,
+    user: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    database: process.env.POSTGRES_DB
+});
+
 client.commands = new Collection();
 
-const sequelize = new Sequelize(process.env.POSTGRES_DB, process.env.POSTGRES_USER, process.env.POSTGRES_PASSWORD, {
-    host: process.env.DB_HOST,
-    dialect: 'postgres',
-    logging: false
-});
-
-const Images = sequelize.define('images', {
-    imgname: Sequelize.STRING,
-    img: Sequelize.STRING,
-});
-
 client.once(Events.ClientReady, () => {
-	//Tags.sync();
-    Images.sync();
+    pgClient.connect()
+        .then(() => console.log('Connected to PostgreSQL'))
+        .catch(err => console.error('Connection error', err.stack));
+
 	console.log(`Logged in as ${client.user.tag}!`);
 });
 
@@ -39,9 +37,25 @@ client.on('ready', (c) => {
     console.log(`🐈 ${c.user.tag} is online.`);
 });
 
+
+
 client.on('messageCreate', async (message) => {
     if (message.author.bot) {
         return;
+    }
+
+    if (message.content === 'ping') {
+        pgClient.query('SELECT imgname FROM images', (err, res) => {
+            if (err) {
+                console.error('Error executing query', err.stack);
+            } else {
+                // Convert each row to a string and join them with a newline
+                // const resultString = res.rows.map(row => JSON.stringify(row)).join('\n');
+
+                // Send the result as a message
+                const imgname = res.rows[0].imgname;
+                message.reply(imgname);
+            }})
     }
 
     if (message.content === 'hello') {
@@ -100,6 +114,7 @@ async function image(message, widthInput, heightInput, url) {
     
         message.channel.send({ files: [attachment] });
 }
+
 
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
